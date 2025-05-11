@@ -10,9 +10,9 @@ import Authors from "./pages/Authors";
 import Borrowings from "./pages/Borrowings";
 
 function App() {
-  // Örnek bir bildirim göstermek için fonksiyon
+  // Toast bildirimini gösteren fonksiyon
   const showToast = () => {
-    toast.success("📢 Bildirim örneği başarıyla gösterildi!");
+    toast.success("Bu bir bildirimdir!");
   };
 
   return (
@@ -42,9 +42,9 @@ function App() {
           </Link>
         </nav>
 
-        {/* Örnek bildirim butonu */}
-        <button onClick={showToast} className="btn btn-primary mb-3">
-          Bildirim Göster
+        {/* Toast bildirimini gösteren buton */}
+        <button className="btn btn-primary mb-4" onClick={showToast}>
+          Show Toast
         </button>
 
         {/* Sayfa yönlendirmeleri */}
