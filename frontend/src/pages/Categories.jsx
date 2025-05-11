@@ -5,6 +5,7 @@ import {
   updateCategory,
   deleteCategory,
 } from "../services/api";
+import { toast } from "react-toastify";
 
 function Categories() {
   const [categories, setCategories] = useState([]);
@@ -23,8 +24,8 @@ function Categories() {
     getCategories()
       .then((response) => setCategories(response.data))
       .catch((error) => {
-        console.error("Kategoriler alınamadı:", error);
-        alert("Kategori listesi alınırken bir hata oluştu.");
+        console.error("Failed to fetch categories:", error);
+        toast.error("An error occurred while fetching categories.");
       });
   };
 
@@ -39,7 +40,7 @@ function Categories() {
     e.preventDefault();
 
     if (!newCategory.name.trim() || !newCategory.description.trim()) {
-      alert("Lütfen tüm alanları doldurun.");
+      toast.warn("Please fill in all fields.");
       return;
     }
 
@@ -50,10 +51,11 @@ function Categories() {
       .then(() => {
         fetchCategories();
         setNewCategory({ name: "", description: "" });
+        toast.success("Category added successfully!");
       })
       .catch((error) => {
-        console.error("Kategori eklenemedi:", error);
-        alert("Kategori eklenirken bir hata oluştu.");
+        console.error("Failed to add category:", error);
+        toast.error("An error occurred while adding the category.");
       });
   };
 
@@ -71,11 +73,10 @@ function Categories() {
     const currentCategory = categories.find((c) => c.id === editId);
 
     if (!currentCategory) {
-      alert("Kategori bulunamadı.");
+      toast.warn("No data found to update.");
       return;
     }
 
-    // Final name ve description'ı eski veriyle doldur
     const finalName = newCategory.name.trim() || currentCategory.name;
     const finalDescription =
       newCategory.description.trim() || currentCategory.description;
@@ -91,34 +92,36 @@ function Categories() {
         setEditId(null);
         setNewCategory({ name: "", description: "" });
         fetchCategories();
+        toast.success("Category updated successfully!");
       })
       .catch((error) => {
-        console.error("Güncelleme başarısız:", error);
-        alert("Kategori güncellenemedi.");
+        console.error("Failed to update category:", error);
+        toast.error("An error occurred while updating the category.");
       });
   };
 
   const handleDelete = (id) => {
-    if (!window.confirm("Bu kategoriyi silmek istediğinizden emin misiniz?"))
+    if (!window.confirm("Are you sure you want to delete this category?"))
       return;
 
     deleteCategory(id)
       .then(() => {
         fetchCategories();
+        toast.success("Category deleted successfully.");
       })
       .catch((error) => {
-        console.error("Silme işlemi başarısız:", error);
-        alert("Kategori silinemedi.");
+        console.error("Failed to delete category:", error);
+        toast.error("An error occurred while deleting the category.");
       });
   };
 
   return (
     <div>
-      <h2>📁 Kategoriler</h2>
+      <h2>📁 Categories</h2>
 
       <form onSubmit={editId ? handleUpdate : handleSubmit} className="mb-4">
         <div className="mb-2">
-          <label>Kategori Adı:</label>
+          <label>Category Name:</label>
           <input
             type="text"
             name="name"
@@ -128,7 +131,7 @@ function Categories() {
           />
         </div>
         <div className="mb-2">
-          <label>Açıklama:</label>
+          <label>Description:</label>
           <textarea
             name="description"
             value={newCategory.description}
@@ -138,7 +141,7 @@ function Categories() {
         </div>
 
         <button type="submit" className="btn btn-primary">
-          {editId ? "Kategori Güncelle" : "Kategori Ekle"}
+          {editId ? "Update Category" : "Add Category"}
         </button>
       </form>
 
@@ -146,7 +149,7 @@ function Categories() {
         <input
           type="text"
           className="form-control"
-          placeholder="Kategori adına göre ara..."
+          placeholder="Search by category name..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
@@ -173,13 +176,13 @@ function Categories() {
                   className="btn btn-warning btn-sm me-2"
                   onClick={() => handleEdit(category)}
                 >
-                  Düzenle
+                  Update
                 </button>
                 <button
                   className="btn btn-danger btn-sm"
                   onClick={() => handleDelete(category.id)}
                 >
-                  Sil
+                  Delete
                 </button>
               </div>
             </li>

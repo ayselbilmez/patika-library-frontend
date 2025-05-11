@@ -8,6 +8,7 @@ import {
   getPublishers,
   getCategories,
 } from "../services/api";
+import { toast } from "react-toastify";
 
 function Books() {
   const [books, setBooks] = useState([]);
@@ -35,8 +36,8 @@ function Books() {
     getBooks()
       .then((res) => setBooks(res.data))
       .catch((err) => {
-        console.error("Kitaplar alınamadı:", err);
-        alert("Kitaplar alınamadı.");
+        console.error("Failed to fetch books:", err);
+        toast.error("Failed to fetch books.");
       });
   };
 
@@ -44,8 +45,8 @@ function Books() {
     getAuthors()
       .then((res) => setAuthors(res.data))
       .catch((err) => {
-        console.error("Yazarlar alınamadı:", err);
-        alert("Yazarlar alınamadı.");
+        console.error("Failed to fetch authors:", err);
+        toast.error("Failed to fetch authors.");
       });
   };
 
@@ -53,8 +54,8 @@ function Books() {
     getPublishers()
       .then((res) => setPublishers(res.data))
       .catch((err) => {
-        console.error("Yayınevleri alınamadı:", err);
-        alert("Yayınevleri alınamadı.");
+        console.error("Failed to fetch publishers:", err);
+        toast.error("Failed to fetch publishers.");
       });
   };
 
@@ -62,8 +63,8 @@ function Books() {
     getCategories()
       .then((res) => setCategories(res.data))
       .catch((err) => {
-        console.error("Kategoriler alınamadı:", err);
-        alert("Kategoriler alınamadı.");
+        console.error("Failed to fetch categories:", err);
+        toast.error("Failed to fetch categories.");
       });
   };
 
@@ -93,10 +94,13 @@ function Books() {
       .then(() => {
         fetchBooks();
         resetForm();
+        toast.success(
+          editId ? "Book updated successfully." : "Book added successfully."
+        );
       })
       .catch((err) => {
-        console.error("İşlem başarısız:", err);
-        alert("Kitap kaydedilemedi.");
+        console.error("Operation failed:", err);
+        toast.error("Failed to save the book.");
       });
   };
 
@@ -113,14 +117,16 @@ function Books() {
   };
 
   const handleDelete = (id) => {
-    if (!window.confirm("Bu kitabı silmek istediğinizden emin misiniz?"))
-      return;
+    if (!window.confirm("Are you sure you want to delete this book?")) return;
 
     deleteBook(id)
-      .then(() => fetchBooks())
+      .then(() => {
+        fetchBooks();
+        toast.success("Book deleted successfully.");
+      })
       .catch((err) => {
-        console.error("Silme hatası:", err);
-        alert("Kitap silinemedi.");
+        console.error("Delete error:", err);
+        toast.error("Failed to delete the book.");
       });
   };
 
@@ -138,11 +144,11 @@ function Books() {
 
   return (
     <div>
-      <h2>📚 Kitaplar</h2>
+      <h2>📚 Books</h2>
 
       <form onSubmit={handleSubmit} className="mb-4">
         <div className="mb-2">
-          <label>Kitap Adı:</label>
+          <label>Book Name:</label>
           <input
             type="text"
             name="name"
@@ -153,7 +159,7 @@ function Books() {
         </div>
 
         <div className="mb-2">
-          <label>Yayın Yılı:</label>
+          <label>Publication Year:</label>
           <input
             type="number"
             name="publicationYear"
@@ -164,7 +170,7 @@ function Books() {
         </div>
 
         <div className="mb-2">
-          <label>Stok:</label>
+          <label>Stock:</label>
           <input
             type="number"
             name="stock"
@@ -175,14 +181,14 @@ function Books() {
         </div>
 
         <div className="mb-2">
-          <label>Yazar:</label>
+          <label>Author:</label>
           <select
             name="authorId"
             value={newBook.authorId}
             onChange={handleChange}
             className="form-control"
           >
-            <option value="">Yazar seçin</option>
+            <option value="">Select author</option>
             {authors.map((a) => (
               <option key={a.id} value={a.id}>
                 {a.name}
@@ -192,14 +198,14 @@ function Books() {
         </div>
 
         <div className="mb-2">
-          <label>Yayınevi:</label>
+          <label>Publisher:</label>
           <select
             name="publisherId"
             value={newBook.publisherId}
             onChange={handleChange}
             className="form-control"
           >
-            <option value="">Yayınevi seçin</option>
+            <option value="">Select publisher</option>
             {publishers.map((p) => (
               <option key={p.id} value={p.id}>
                 {p.name}
@@ -209,14 +215,14 @@ function Books() {
         </div>
 
         <div className="mb-2">
-          <label>Kategori:</label>
+          <label>Category:</label>
           <select
             name="categoryId"
             value={newBook.categoryId}
             onChange={handleChange}
             className="form-control"
           >
-            <option value="">Kategori seçin</option>
+            <option value="">Select category</option>
             {categories.map((c) => (
               <option key={c.id} value={c.id}>
                 {c.name}
@@ -226,31 +232,31 @@ function Books() {
         </div>
 
         <button type="submit" className="btn btn-success">
-          {editId ? "Kitabı Güncelle" : "Kitap Ekle"}
+          {editId ? "Update Book" : "Add Book"}
         </button>
       </form>
 
       <ul className="list-group">
         {books.map((book) => (
           <li key={book.id} className="list-group-item">
-            <strong>{book.name}</strong> – {book.publicationYear} – Stok:{" "}
+            <strong>{book.name}</strong> – {book.publicationYear} – Stock:{" "}
             {book.stock}
             <div className="text-muted small">
-              Yazar: {book.author?.name} | Yayınevi: {book.publisher?.name} |{" "}
-              Kategori: {book.categories?.[0]?.name}
+              Author: {book.author?.name} | Publisher: {book.publisher?.name} |
+              Category: {book.categories?.[0]?.name}
             </div>
             <div className="mt-2">
               <button
                 className="btn btn-warning btn-sm me-2"
                 onClick={() => handleEdit(book)}
               >
-                Düzenle
+                Edit
               </button>
               <button
                 className="btn btn-danger btn-sm"
                 onClick={() => handleDelete(book.id)}
               >
-                Sil
+                Delete
               </button>
             </div>
           </li>

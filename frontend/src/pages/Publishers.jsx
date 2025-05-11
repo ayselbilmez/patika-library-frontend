@@ -5,6 +5,7 @@ import {
   updatePublisher,
   deletePublisher,
 } from "../services/api";
+import { toast } from "react-toastify";
 
 function Publishers() {
   const [publishers, setPublishers] = useState([]);
@@ -26,7 +27,7 @@ function Publishers() {
       .then((response) => setPublishers(response.data))
       .catch((error) => {
         console.error("Failed to fetch publishers:", error);
-        alert("An error occurred while fetching publishers.");
+        toast.error("Failed to fetch publishers.");
       });
   };
 
@@ -45,7 +46,7 @@ function Publishers() {
       !newPublisher.address.trim() ||
       !newPublisher.establishmentYear
     ) {
-      alert("Lütfen tüm alanları doldurun.");
+      toast.warn("Lütfen tüm alanları doldurun.");
       return;
     }
 
@@ -56,28 +57,28 @@ function Publishers() {
       .then(() => {
         fetchPublishers();
         setNewPublisher({ name: "", address: "", establishmentYear: "" });
+        toast.success("Yayınevi başarıyla eklendi!");
       })
       .catch((error) => {
         console.error("Failed to add publisher:", error);
-        alert("An error occurred while adding publisher.");
+        toast.error("Yayınevi eklenirken bir hata oluştu.");
       });
   };
 
   const handleEdit = (publisher) => {
     setEditId(publisher.id);
-    setCurrentPublisher(publisher); // mevcut veriyi sakla
-    setNewPublisher({ ...publisher }); // formu doldur
+    setCurrentPublisher(publisher);
+    setNewPublisher({ ...publisher });
   };
 
   const handleUpdate = (e) => {
     e.preventDefault();
 
     if (!currentPublisher) {
-      alert("Güncellenecek veri bulunamadı.");
+      toast.error("Güncellenecek veri bulunamadı.");
       return;
     }
 
-    // sadece adres değiştiyse, diğerleri aynı gönderilir ve backend çakışma görmez
     const updatedPublisher = {
       id: editId,
       name:
@@ -99,9 +100,8 @@ function Publishers() {
           : currentPublisher.establishmentYear,
     };
 
-    // Yıl geçerli sayı mı kontrolü
     if (isNaN(updatedPublisher.establishmentYear)) {
-      alert("Yıl geçersiz.");
+      toast.warn("Yıl geçersiz.");
       return;
     }
 
@@ -111,10 +111,11 @@ function Publishers() {
         setCurrentPublisher(null);
         setNewPublisher({ name: "", address: "", establishmentYear: "" });
         fetchPublishers();
+        toast.success("Yayınevi başarıyla güncellendi!");
       })
       .catch((error) => {
         console.error("Güncelleme başarısız:", error);
-        alert("Yayınevi güncellenemedi.");
+        toast.error("Yayınevi güncellenemedi.");
       });
   };
 
@@ -125,10 +126,11 @@ function Publishers() {
     deletePublisher(id)
       .then(() => {
         fetchPublishers();
+        toast.success("Yayınevi başarıyla silindi.");
       })
       .catch((error) => {
         console.error("Silme işlemi başarısız:", error);
-        alert("Yayınevi silinemedi.");
+        toast.error("Yayınevi silinemedi.");
       });
   };
 

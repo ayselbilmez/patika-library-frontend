@@ -5,6 +5,7 @@ import {
   updateAuthor,
   deleteAuthor,
 } from "../services/api";
+import { toast } from "react-toastify";
 
 function Authors() {
   const [authors, setAuthors] = useState([]);
@@ -23,8 +24,8 @@ function Authors() {
     getAuthors()
       .then((res) => setAuthors(res.data))
       .catch((err) => {
-        console.error("Yazarlar alınamadı:", err);
-        alert("Yazarlar alınamadı.");
+        console.error("Failed to fetch authors:", err);
+        toast.error("An error occurred while fetching authors.");
       });
   };
 
@@ -43,7 +44,7 @@ function Authors() {
       !newAuthor.birthDate ||
       !newAuthor.country.trim()
     ) {
-      alert("Lütfen tüm alanları doldurun.");
+      toast.warn("Please fill in all fields.");
       return;
     }
 
@@ -62,10 +63,13 @@ function Authors() {
       .then(() => {
         fetchAuthors();
         resetForm();
+        toast.success(
+          editId ? "Author updated successfully." : "Author added successfully."
+        );
       })
       .catch((err) => {
-        console.error("Yazar kaydı başarısız:", err);
-        alert("Yazar eklenemedi/güncellenemedi.");
+        console.error("Failed to save author:", err);
+        toast.error("An error occurred while saving the author.");
       });
   };
 
@@ -79,14 +83,16 @@ function Authors() {
   };
 
   const handleDelete = (id) => {
-    if (!window.confirm("Bu yazarı silmek istediğinizden emin misiniz?"))
-      return;
+    if (!window.confirm("Are you sure you want to delete this author?")) return;
 
     deleteAuthor(id)
-      .then(() => fetchAuthors())
+      .then(() => {
+        fetchAuthors();
+        toast.success("Author deleted successfully.");
+      })
       .catch((err) => {
-        console.error("Silme hatası:", err);
-        alert("Yazar silinemedi.");
+        console.error("Failed to delete author:", err);
+        toast.error("An error occurred while deleting the author.");
       });
   };
 
@@ -101,11 +107,11 @@ function Authors() {
 
   return (
     <div>
-      <h2>✍️ Yazarlar</h2>
+      <h2>✍️ Authors</h2>
 
       <form onSubmit={handleSubmit} className="mb-4">
         <div className="mb-2">
-          <label>Adı:</label>
+          <label>Name:</label>
           <input
             type="text"
             name="name"
@@ -116,7 +122,7 @@ function Authors() {
         </div>
 
         <div className="mb-2">
-          <label>Doğum Tarihi:</label>
+          <label>Birth Date:</label>
           <input
             type="date"
             name="birthDate"
@@ -127,7 +133,7 @@ function Authors() {
         </div>
 
         <div className="mb-2">
-          <label>Ülke:</label>
+          <label>Country:</label>
           <input
             type="text"
             name="country"
@@ -138,7 +144,7 @@ function Authors() {
         </div>
 
         <button type="submit" className="btn btn-primary">
-          {editId ? "Yazarı Güncelle" : "Yazar Ekle"}
+          {editId ? "Update Author" : "Add Author"}
         </button>
       </form>
 
@@ -157,13 +163,13 @@ function Authors() {
                 className="btn btn-warning btn-sm me-2"
                 onClick={() => handleEdit(author)}
               >
-                Düzenle
+                Edit
               </button>
               <button
                 className="btn btn-danger btn-sm"
                 onClick={() => handleDelete(author.id)}
               >
-                Sil
+                Delete
               </button>
             </div>
           </li>

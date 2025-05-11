@@ -1,4 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 import Home from "./pages/Home";
 import Publishers from "./pages/Publishers";
 import Categories from "./pages/Categories";
@@ -7,12 +10,17 @@ import Authors from "./pages/Authors";
 import Borrowings from "./pages/Borrowings";
 
 function App() {
+  // Örnek bir bildirim göstermek için fonksiyon
+  const showToast = () => {
+    toast.success("📢 Bildirim örneği başarıyla gösterildi!");
+  };
+
   return (
     <Router>
       <div className="container mt-4">
         <h1 className="mb-4">📚 Patika Library App</h1>
 
-        {/* Basit navigation menüsü */}
+        {/* Navigasyon menüsü */}
         <nav className="mb-4">
           <Link className="me-3" to="/">
             Home
@@ -34,6 +42,11 @@ function App() {
           </Link>
         </nav>
 
+        {/* Örnek bildirim butonu */}
+        <button onClick={showToast} className="btn btn-primary mb-3">
+          Bildirim Göster
+        </button>
+
         {/* Sayfa yönlendirmeleri */}
         <Routes>
           <Route path="/" element={<Home />} />
@@ -44,6 +57,20 @@ function App() {
           <Route path="/borrowings" element={<Borrowings />} />
         </Routes>
       </div>
+
+      {/* ToastContainer bileşeni */}
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+      />
     </Router>
   );
 }

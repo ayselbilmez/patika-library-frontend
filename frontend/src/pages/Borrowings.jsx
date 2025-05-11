@@ -6,6 +6,7 @@ import {
   deleteBorrowing,
   getBooks,
 } from "../services/api";
+import { toast } from "react-toastify";
 
 function Borrowings() {
   const [borrowings, setBorrowings] = useState([]);
@@ -16,6 +17,7 @@ function Borrowings() {
     borrowerName: "",
     borrowerMail: "",
     borrowingDate: "",
+    returnDate: "",
     bookId: "",
   });
 
@@ -28,8 +30,8 @@ function Borrowings() {
     getBorrowings()
       .then((res) => setBorrowings(res.data))
       .catch((err) => {
-        console.error("Veriler alınamadı:", err);
-        alert("Borrowing verileri alınamadı.");
+        console.error("Failed to fetch borrowings:", err);
+        toast.error("An error occurred while fetching borrowings.");
       });
   };
 
@@ -37,8 +39,8 @@ function Borrowings() {
     getBooks()
       .then((res) => setBooks(res.data))
       .catch((err) => {
-        console.error("Kitaplar alınamadı:", err);
-        alert("Kitaplar alınamadı.");
+        console.error("Failed to fetch books:", err);
+        toast.error("An error occurred while fetching books.");
       });
   };
 
@@ -55,36 +57,40 @@ function Borrowings() {
       borrowerName: borrowing.borrowerName,
       borrowerMail: borrowing.borrowerMail,
       borrowingDate: borrowing.borrowingDate,
-      bookId: borrowing.bookForBorrowingRequest?.id,
+      returnDate: borrowing.returnDate || "",
+      bookId: borrowing.bookForBorrowingRequest?.id || "",
     });
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
 
+    const { borrowerName, borrowerMail, borrowingDate, returnDate, bookId } =
+      newBorrowing;
+
     if (
-      !newBorrowing.borrowerName.trim() ||
-      !newBorrowing.borrowerMail.trim() ||
-      !newBorrowing.borrowingDate ||
-      !newBorrowing.bookId
+      !borrowerName.trim() ||
+      !borrowerMail.trim() ||
+      !borrowingDate ||
+      !returnDate ||
+      !bookId
     ) {
-      alert("Lütfen tüm alanları doldurun.");
+      toast.warn("Please fill in all fields.");
       return;
     }
 
-    const selectedBook = books.find(
-      (b) => b.id === Number(newBorrowing.bookId)
-    );
+    const selectedBook = books.find((b) => b.id === Number(bookId));
 
     if (!selectedBook) {
-      alert("Seçilen kitap bulunamadı.");
+      toast.error("Selected book not found.");
       return;
     }
 
     const payload = {
-      borrowerName: newBorrowing.borrowerName,
-      borrowerMail: newBorrowing.borrowerMail,
-      borrowingDate: newBorrowing.borrowingDate,
+      borrowerName,
+      borrowerMail,
+      borrowingDate,
+      returnDate,
       bookForBorrowingRequest: {
         id: selectedBook.id,
         name: selectedBook.name,
@@ -101,21 +107,32 @@ function Borrowings() {
       .then(() => {
         fetchBorrowings();
         resetForm();
+        toast.success(
+          editId
+            ? "Borrowing record updated successfully!"
+            : "Book borrowed successfully!"
+        );
       })
       .catch((err) => {
-        console.error("Borrowing kaydedilemedi:", err);
-        alert("Borrowing kaydedilemedi.");
+        console.error("Failed to save borrowing:", err);
+        toast.error("An error occurred while saving the borrowing.");
       });
   };
 
   const handleDelete = (id) => {
-    if (!window.confirm("Bu borrowing kaydını silmek istiyor musunuz?")) return;
+    if (
+      !window.confirm("Are you sure you want to delete this borrowing record?")
+    )
+      return;
 
     deleteBorrowing(id)
-      .then(() => fetchBorrowings())
+      .then(() => {
+        fetchBorrowings();
+        toast.success("Borrowing record deleted successfully.");
+      })
       .catch((err) => {
-        console.error("Silme hatası:", err);
-        alert("Kayıt silinemedi.");
+        console.error("Deletion error:", err);
+        toast.error("Failed to delete the record.");
       });
   };
 
@@ -125,17 +142,18 @@ function Borrowings() {
       borrowerName: "",
       borrowerMail: "",
       borrowingDate: "",
+      returnDate: "",
       bookId: "",
     });
   };
 
   return (
     <div>
-      <h2>📦 Kitap Alma İşlemleri</h2>
+      <h2>📦 Borrowing Transactions</h2>
 
       <form onSubmit={handleSubmit} className="mb-4">
         <div className="mb-2">
-          <label>İsim:</label>
+          <label>Name:</label>
           <input
             type="text"
             name="borrowerName"
@@ -146,7 +164,7 @@ function Borrowings() {
         </div>
 
         <div className="mb-2">
-          <label>Mail:</label>
+          <label>Email:</label>
           <input
             type="email"
             name="borrowerMail"
@@ -157,7 +175,7 @@ function Borrowings() {
         </div>
 
         <div className="mb-2">
-          <label>Alım Tarihi:</label>
+          <label>Borrowing Date:</label>
           <input
             type="date"
             name="borrowingDate"
@@ -168,14 +186,25 @@ function Borrowings() {
         </div>
 
         <div className="mb-2">
-          <label>Kitap Seç:</label>
+          <label>Return Date:</label>
+          <input
+            type="date"
+            name="returnDate"
+            value={newBorrowing.returnDate}
+            onChange={handleChange}
+            className="form-control"
+          />
+        </div>
+
+        <div className="mb-2">
+          <label>Select Book:</label>
           <select
             name="bookId"
             value={newBorrowing.bookId}
             onChange={handleChange}
             className="form-control"
           >
-            <option value="">Kitap seçin</option>
+            <option value="">Select a book</option>
             {books.map((book) => (
               <option key={book.id} value={book.id}>
                 {book.name}
@@ -185,7 +214,7 @@ function Borrowings() {
         </div>
 
         <button type="submit" className="btn btn-success">
-          {editId ? "Güncelle" : "Kitap Ödünç Ver"}
+          {editId ? "Update" : "Borrow Book"}
         </button>
       </form>
 
@@ -193,7 +222,7 @@ function Borrowings() {
         <input
           type="text"
           className="form-control"
-          placeholder="İsimle ara..."
+          placeholder="Search by name..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
@@ -212,20 +241,22 @@ function Borrowings() {
               <div>
                 <strong>{item.borrowerName}</strong> – {item.borrowerMail} (
                 {item.borrowingDate})<br />
-                Kitap: {item.bookForBorrowingRequest?.name}
+                Book: {item.bookForBorrowingRequest?.name}
+                <br />
+                Return Date: {item.returnDate}
               </div>
               <div>
                 <button
                   className="btn btn-warning btn-sm me-2"
                   onClick={() => handleEdit(item)}
                 >
-                  Düzenle
+                  Edit
                 </button>
                 <button
                   className="btn btn-danger btn-sm"
                   onClick={() => handleDelete(item.id)}
                 >
-                  Sil
+                  Delete
                 </button>
               </div>
             </li>
