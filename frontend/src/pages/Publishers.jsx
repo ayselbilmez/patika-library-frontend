@@ -77,30 +77,31 @@ function Publishers() {
       return;
     }
 
+    // sadece adres değiştiyse, diğerleri aynı gönderilir ve backend çakışma görmez
     const updatedPublisher = {
       id: editId,
       name:
-        newPublisher.name && newPublisher.name.trim() !== ""
+        newPublisher.name.trim() !== "" &&
+        newPublisher.name.trim() !== currentPublisher.name
           ? newPublisher.name.trim()
           : currentPublisher.name,
+
       address:
-        newPublisher.address && newPublisher.address.trim() !== ""
+        newPublisher.address.trim() !== ""
           ? newPublisher.address.trim()
           : currentPublisher.address,
+
       establishmentYear:
-        newPublisher.establishmentYear &&
-        !isNaN(Number(newPublisher.establishmentYear))
+        newPublisher.establishmentYear !== "" &&
+        Number(newPublisher.establishmentYear) !==
+          currentPublisher.establishmentYear
           ? Number(newPublisher.establishmentYear)
           : currentPublisher.establishmentYear,
     };
 
-    // Ekstra kontrol: Address null veya boşsa gönderme
-    if (
-      !updatedPublisher.name.trim() ||
-      !updatedPublisher.address.trim() ||
-      !updatedPublisher.establishmentYear
-    ) {
-      alert("Tüm alanlar dolu olmalı. Güncelleme başarısız.");
+    // Yıl geçerli sayı mı kontrolü
+    if (isNaN(updatedPublisher.establishmentYear)) {
+      alert("Yıl geçersiz.");
       return;
     }
 
