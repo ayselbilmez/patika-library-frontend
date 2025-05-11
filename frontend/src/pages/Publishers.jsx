@@ -94,6 +94,16 @@ function Publishers() {
           : currentPublisher.establishmentYear,
     };
 
+    // Ekstra kontrol: Address null veya boşsa gönderme
+    if (
+      !updatedPublisher.name.trim() ||
+      !updatedPublisher.address.trim() ||
+      !updatedPublisher.establishmentYear
+    ) {
+      alert("Tüm alanlar dolu olmalı. Güncelleme başarısız.");
+      return;
+    }
+
     updatePublisher(editId, updatedPublisher)
       .then(() => {
         setEditId(null);
