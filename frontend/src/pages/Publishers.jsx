@@ -72,19 +72,24 @@ function Publishers() {
   const handleUpdate = (e) => {
     e.preventDefault();
 
-    // Eski değerleri koruyarak boşluklara düşmeyelim
+    if (!currentPublisher) {
+      alert("Güncellenecek veri bulunamadı.");
+      return;
+    }
+
     const updatedPublisher = {
       id: editId,
       name:
-        newPublisher.name.trim() !== ""
-          ? newPublisher.name
+        newPublisher.name && newPublisher.name.trim() !== ""
+          ? newPublisher.name.trim()
           : currentPublisher.name,
       address:
-        newPublisher.address.trim() !== ""
-          ? newPublisher.address
+        newPublisher.address && newPublisher.address.trim() !== ""
+          ? newPublisher.address.trim()
           : currentPublisher.address,
       establishmentYear:
-        newPublisher.establishmentYear !== ""
+        newPublisher.establishmentYear &&
+        !isNaN(Number(newPublisher.establishmentYear))
           ? Number(newPublisher.establishmentYear)
           : currentPublisher.establishmentYear,
     };
@@ -126,7 +131,11 @@ function Publishers() {
           <input
             type="text"
             name="name"
-            value={newPublisher.name}
+            value={
+              newPublisher.name !== ""
+                ? newPublisher.name
+                : currentPublisher?.name || ""
+            }
             onChange={handleChange}
             className="form-control"
           />
@@ -136,7 +145,11 @@ function Publishers() {
           <input
             type="text"
             name="address"
-            value={newPublisher.address}
+            value={
+              newPublisher.address !== ""
+                ? newPublisher.address
+                : currentPublisher?.address || ""
+            }
             onChange={handleChange}
             className="form-control"
           />
@@ -146,7 +159,11 @@ function Publishers() {
           <input
             type="number"
             name="establishmentYear"
-            value={newPublisher.establishmentYear}
+            value={
+              newPublisher.establishmentYear !== ""
+                ? newPublisher.establishmentYear
+                : currentPublisher?.establishmentYear || ""
+            }
             onChange={handleChange}
             className="form-control"
           />
