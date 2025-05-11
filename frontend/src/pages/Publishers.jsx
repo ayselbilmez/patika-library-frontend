@@ -14,8 +14,8 @@ function Publishers() {
     establishmentYear: "",
   });
   const [editId, setEditId] = useState(null);
+  const [currentPublisher, setCurrentPublisher] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
-  const [currentPublisher, setCurrentPublisher] = useState(null); // Eski veriyi tutar
 
   useEffect(() => {
     fetchPublishers();
@@ -65,12 +65,8 @@ function Publishers() {
 
   const handleEdit = (publisher) => {
     setEditId(publisher.id);
-    setCurrentPublisher(publisher); // Eskiyi sakla
-    setNewPublisher({
-      name: "",
-      address: "",
-      establishmentYear: "",
-    });
+    setCurrentPublisher(publisher); // mevcut veriyi sakla
+    setNewPublisher({ ...publisher }); // formu doldur
   };
 
   const handleUpdate = (e) => {
