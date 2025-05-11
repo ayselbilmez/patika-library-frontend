@@ -72,12 +72,21 @@ function Publishers() {
   const handleUpdate = (e) => {
     e.preventDefault();
 
+    // Eski değerleri koruyarak boşluklara düşmeyelim
     const updatedPublisher = {
       id: editId,
-      name: newPublisher.name.trim() || currentPublisher.name,
-      address: newPublisher.address.trim() || currentPublisher.address,
+      name:
+        newPublisher.name.trim() !== ""
+          ? newPublisher.name
+          : currentPublisher.name,
+      address:
+        newPublisher.address.trim() !== ""
+          ? newPublisher.address
+          : currentPublisher.address,
       establishmentYear:
-        newPublisher.establishmentYear || currentPublisher.establishmentYear,
+        newPublisher.establishmentYear !== ""
+          ? Number(newPublisher.establishmentYear)
+          : currentPublisher.establishmentYear,
     };
 
     updatePublisher(editId, updatedPublisher)
