@@ -15,6 +15,7 @@ function Publishers() {
   });
   const [editId, setEditId] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [currentPublisher, setCurrentPublisher] = useState(null); // Eski veriyi tutar
 
   useEffect(() => {
     fetchPublishers();
@@ -64,31 +65,29 @@ function Publishers() {
 
   const handleEdit = (publisher) => {
     setEditId(publisher.id);
+    setCurrentPublisher(publisher); // Eskiyi sakla
     setNewPublisher({
-      name: publisher.name,
-      address: publisher.address,
-      establishmentYear: publisher.establishmentYear,
+      name: "",
+      address: "",
+      establishmentYear: "",
     });
   };
 
   const handleUpdate = (e) => {
     e.preventDefault();
 
-    if (
-      !newPublisher.name.trim() ||
-      !newPublisher.address.trim() ||
-      !newPublisher.establishmentYear
-    ) {
-      alert("Lütfen tüm alanları doldurun.");
-      return;
-    }
-
-    updatePublisher(editId, {
+    const updatedPublisher = {
       id: editId,
-      ...newPublisher,
-    })
+      name: newPublisher.name.trim() || currentPublisher.name,
+      address: newPublisher.address.trim() || currentPublisher.address,
+      establishmentYear:
+        newPublisher.establishmentYear || currentPublisher.establishmentYear,
+    };
+
+    updatePublisher(editId, updatedPublisher)
       .then(() => {
         setEditId(null);
+        setCurrentPublisher(null);
         setNewPublisher({ name: "", address: "", establishmentYear: "" });
         fetchPublishers();
       })
